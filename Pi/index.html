@@ -1,0 +1,482 @@
+<!Doctype HTML>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8"/>
+		<title>Simple Pi Calculator</title>
+		<meta name="author" content="The Simple Pi Calculator Author <souravgoswami@protonmail.com>">
+		<meta name="robots" content="all">
+		<meta name="robots" content="index">
+		<meta name="robots" content="follow">
+		<meta name="keywords" content="Pi Calculator" lang="en-GB">
+		<meta name="description" content="Calculate Pi Value on your Device">
+
+		<meta property="og:title" content="Simple Pi Calculator">
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="http://picalc.rf.gd">
+		<meta property="og:image" itemprop="image" content="http://picalc.rf.gd/favicon/pi.png">
+		<meta property="og:description" content="Calculate Pi Value on your Device">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="shortcut icon" href="favicon/pi.svg">
+		<link rel="icon" type="image/gif" href="favicon/animated_favicon1.gif">
+		<style>
+			@font-face {
+				src: local('Bellefair Regular'), local('Bellefair-Regular'), url('fonts/Bellefair.woff2') format('woff2') ;
+				font-family: 'Bellefair' ;
+				font-style: normal ;
+				font-weight: 400 ;
+				font-display: swap
+			}
+
+			body {
+				font-family: 'Bellefair', serif ;
+				margin: 0px ;
+				background-color: #000 ;
+			}
+
+			#starfield-canvas {
+				position: fixed ;
+				z-index: -100 ;
+			}
+
+			#container {
+				position: absolute ;
+				width: 100% ;
+				display: grid ;
+				place-items: center ;
+				height: 100% ;
+				font-size: 20px ;
+				text-align: center ;
+			}
+
+			#head {
+				font-size: 300% ;
+				text-decoration: underline ;
+				text-align: center ;
+				background: linear-gradient(45deg, #ff0, #55f, #f55, #af0) ;
+				-webkit-background-clip: text ;
+				-webkit-text-fill-color: transparent ;
+				background-size: 200% ;
+				animation: glow 10s linear infinite ;
+			}
+
+			#input {
+				width: 70% ;
+				text-align: center ;
+				padding-top: 6px ;
+				border-radius: 2px ;
+				background-color: #fff ;
+				color: #000 ;
+			}
+
+			.button {
+				user-select: none ;
+				color: #fff ;
+				background-color: transparent ;
+				position: relative ;
+				padding: 2px ;
+				margin-top: 10px ;
+				cursor: pointer ;
+				border-radius: 4px ;
+				z-index: 1 ;
+				transition: all 0.25s linear ;
+			}
+
+			.button:before {
+				content: '' ;
+				background: linear-gradient(45deg, #ff5, #f75, #fb5, #5f5, #5fd, #5ff, #75f, #f5c, #f55, #ff5);
+				position: absolute ;
+				background-size: 400% ;
+				border-radius: 4px ;
+				width: calc(100% + 2px)  ;
+				height: calc(100% + 2px) ;
+				z-index: -1 ;
+				top: -2px ;
+				left: -2px ;
+				filter: blur(2px) ;
+				animation: glow 10s linear infinite ;
+				transition: all 0.25s ease ;
+			}
+
+			.button:after {
+				z-index: -1 ;
+				content: '' ;
+				position: absolute ;
+				width :100% ;
+				height: 100% ;
+				background-color: #101 ;
+				left: -1px ;
+				top: -1px ;
+				border-radius: 4px ;
+				transition: all 0.25s ease ;
+			}
+
+			.tooltiptext {
+				background-color: #333 ;
+				font-size: 12px ;
+				color: #fff ;
+				width: 120px ;
+				text-align: center ;
+				padding: 5px 0 ;
+				position: absolute ;
+				bottom: 135% ;
+				left: 50% ;
+				opacity: 0 ;
+				margin-left: -60px ;
+				display: none ;
+				animation: myAnim 1.25s ease-out ;
+			}
+
+			.tooltiptext::after {
+				content: "" ;
+				position: absolute ;
+				top: 100% ;
+				left: 50% ;
+				border-width: 8px ;
+				margin-left: -4px ;
+				border-style: solid ;
+				border-color: #333 transparent transparent transparent ;
+			}
+
+			.button:hover:before { filter: blur(0px) }
+			.button:hover:after { background-color: rgba(0, 0, 0, 0.5) }
+			.button:active:after { filter: blur(8px) ; }
+
+			#confirm {
+				display: inline-block ;
+				width: auto ;
+			}
+
+			#outputWrap {
+				width: auto ;
+				padding: 3px 6px 3px 4px ;
+				margin-top: 30px ;
+				background: linear-gradient(45deg, #DD0B8A, #cA59FB, #89E393, #73F318, #EC8011, #E2107A, #DD0B8A) ;
+				background-size: 500% ;
+				border-radius: 4px ;
+				animation: glow 30s ease-in-out infinite ;
+			}
+
+			#output {
+				border: none ;
+				width: 100% ;
+				background-color: #1D1E22 ;
+				color: #fff ;
+				transition: all 0.125s ease-out ;
+			}
+
+			@keyframes glow {
+				0%, 100% { background-position: 0 0 }
+				50% { background-position: 400% }
+			}
+
+			@keyframes myAnim {
+				0%, 100% { opacity: 0 }
+				50% { opacity: 1 }
+			}
+
+			#warnings {
+				position: absolute ;
+				font-size: 15px ;
+				background-color: rgba(20, 20, 20, 0.75) ;
+				padding: 0px 20px 50px 20px ;
+				box-shadow: 0px 0px 8px 4px #000 ;
+				border-radius: 6px ;
+				height: 150px ;
+				text-align: center ;
+				display: none ;
+				z-index: 100 ;
+				animation: myAnimHide 0.25s ease ;
+				transition: all 0.25s ease ;
+			}
+
+			#warnings:hover { background-color: rgba(20, 20, 20, 0.9) }
+
+			#warnings-div {
+				width: 100% ;
+				display: block ;
+				position: absolute ;
+				bottom: 0px ;
+			}
+
+			#warnings-btn {
+				padding: 8px 8px ;
+				margin-right: auto ;
+				margin-left: auto ;
+				display: block ;
+				color: #fff ;
+				border-radius: 4px ;
+				background-color: #f5a ;
+				cursor: pointer ;
+				transition: all 0.25s ease-in-out ;
+			}
+
+			#warnings-text {
+				background: linear-gradient(45deg, #5eb, #f55, #f5f, #55f, #5f5) ;
+				-webkit-background-clip: text ;
+				-webkit-text-fill-color: transparent ;
+				background-size: 400% ;
+				color: #000 ;
+				user-select: none ;
+				margin-top: auto ;
+				margin-bottom: auto ;
+				animation: glow 20s ease infinite ;
+			}
+
+			#warnings-btn:hover { background-color: #59f }
+
+			#others {
+				filter: blur(0px) ;
+				transition: all 0.25s ease-in-out ;
+			}
+
+			@keyframes myAnimHide {
+				0% { opacity: 0 }
+				100% { opacity: 1 }
+			}
+
+			#close-warning {
+				width: 15px ;
+				margin-left: -15px ;
+				margin-top: 5px ;
+				transition: all 0.5s ease ;
+			}
+
+			#close-warning:hover { filter: hue-rotate(180deg) }
+
+			#github {
+				cursor: pointer ;
+				filter: invert(100%) ;
+				transition: all 0.25s ease-in-out ;
+			}
+
+			#github:hover { animation: myTransform 0.5s ease-in-out }
+
+			#fork-label {
+				opacity: 0 ;
+				transition: all 0.25s ease-in-out ;
+			}
+
+			#fork {
+				width: 100% ;
+				user-select: none ;
+				position: absolute ;
+				text-align: right ;
+				padding: 5px ;
+				font-size: 8px ;
+				margin-left: -10px ;
+				color: #fff ;
+				z-index: 1 ;
+			}
+
+			@keyframes myTransform {
+				0%, 100% { transform: scaleX(1) }
+				50% { transform: scaleX(-1) }
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="starfield-canvas"></canvas>
+		<div id="fork">
+			<a href="https://github.com/Souravgoswami/pi-calc"><img id="github" src="favicon/github-logo.svg" width="25px"></a>
+			<p id="fork-label">Fork Me</p>
+		</div>
+
+		<div id="container">
+			<div id="warnings">
+				<img src="favicon/cross.svg" id="close-warning">
+
+				<span id="warnings-text">
+					Hey!
+					<br>
+					Sorry but the Browser is Unsupported!
+					<hr>
+					Supported Browsers: Firefox, Chrome, Opera, Falkon, Brave
+					<br><br>
+					Recommended Browser: Latest Chrome/Chromium, Brave
+					<hr>
+					[you can press the continue button , but this app may not work]
+				</span>
+
+				<div id="warnings-div"><a id="warnings-btn">continue</a></div>
+			</div>
+
+			<div id="others">
+				<div id="head">Simple Pi Calculator</div>
+				<div id="inputs">
+					<input type="number" min="1" value="1" id="input" placeholder="Value"/>
+					<div id="confirm" class="button">Calculate!</div>
+				</div>
+
+				<div id="outputWrap"><textarea rows="8" placeholder="Type a Number above and press the Confirm button." id="output"></textarea></div>
+				<div class="tooltip"><div id="copy" class="button">Copy Text<span class="tooltiptext" id="copyTooltip"></span></div></div>
+				<div id="clear" class="button">Clear</div>
+			</div>
+		</div>
+
+		<script>
+			var outputElement = document.getElementById('output'), bigInt = false
+
+			document.getElementById('github').onmouseover = () => { document.getElementById('fork-label').style.opacity = '1' }
+			document.getElementById('github').onmouseout = () => { document.getElementById('fork-label').style.opacity = '0' }
+
+			document.getElementById('github').onmousedown = () => {
+				document.getElementById('github').style.transform = 'scaleY(-1)'
+				setTimeout(() => { document.getElementById('github').style.transform = 'scaleY(1)' }, 250)
+			}
+
+			try {
+				BigInt(0)
+				bigInt = true
+			}
+
+			catch(err) {
+				console.log('Unsupported Browser')
+				document.getElementById('warnings').style.display = 'grid'
+				document.getElementById('others').style.filter = 'blur(4px)'
+			}
+
+			document.getElementById('warnings-div').onclick = () => {
+				bigInt = true
+				document.getElementById('warnings').style.display = 'none'
+				document.getElementById('others').style.filter = 'none'
+			}
+
+			document.getElementById('close-warning').onclick = () => {
+				bigInt = true
+				document.getElementById('warnings').style.display = 'none'
+				document.getElementById('others').style.filter = 'none'
+			}
+
+			outputElement.value =
+				`:: Give a number above and press the "Confirm" button.\n\n` +
+				`:: This will use your computer's resources to generate Pi.\n\n` +
+				`:: This app may use a good amount of memory.\n\n` +
+				`:: A higher number can freeze your system.\n\n` +
+				`:: Use chrome/chromium based browsers for best performance.`
+
+			calc = () => {
+				var value = document.getElementById('input').value
+				outputElement.value = calculatePi(value <= 0 ? 1 : value)
+			}
+
+			document.getElementById('confirm').onclick = () => { if(bigInt) calc.call() }
+			document.getElementById('input').addEventListener('keyup', (event) => { if (event.keyCode === 13) calc.call() })
+
+			document.getElementById('copy').onclick = () => {
+				var copyTooltip = document.getElementById('copyTooltip'), outputValue = outputElement.value
+
+				if (outputValue.length > 0 && !/[^\d\.]/.test(outputValue))
+					copy(outputValue)
+				else
+					copyTooltip.innerHTML = 'Nothing to Copy!'
+
+				copyTooltip.style.display = 'block'
+				setTimeout(() => { copyTooltip.style.display = 'none' }, 1500)
+			}
+
+			document.getElementById('clear').onclick = () => {
+				document.getElementById('output').style.filter = 'blur(2px)'
+
+				setTimeout(() => {
+					document.getElementById('output').style.filter = 'blur(0px)'
+					document.getElementById('output').value = ''
+				}, 130)
+			}
+
+			function copy(string) {
+				var copyHelper = document.createElement('input')
+				copyHelper.className = 'copyHelper'
+				document.body.appendChild(copyHelper)
+				copyHelper.value = string
+				copyHelper.select()
+				document.execCommand('copy')
+				document.body.removeChild(copyHelper)
+
+				copyTooltip = document.getElementById('copyTooltip')
+				copyTooltip.innerHTML = 'Text Copied!'
+				copyTooltip.style.display = 'block'
+			}
+
+			function calculatePi(n) {
+				var one = BigInt(1), two = BigInt(2), three = BigInt(3), seven = BigInt(7), ten = BigInt(10)
+				var q = t = k = one
+				var four = BigInt(4)
+				var m = x = three
+				var n = BigInt(n) + one
+				var r = BigInt(0)
+				var str = ''
+
+				while (str.length < n) {
+					if (four * q + r - t < m * t) {
+						str += m
+
+						var rr = r
+						r = ten * (r - m * t)
+						m = (ten * (three * q + rr)) / t - ten * m
+						q *= ten
+					}
+
+					else {
+						t *= x
+						m = (q * (seven * k + two) + (r * x)) / t
+						r = ((two * q) + r) * x
+						q *= k
+						k += one
+						x += two
+					}
+				}
+
+				return(str.slice(0, 1) + '.' + str.slice(1))
+			}
+
+			class Star {
+				constructor(x, y) {
+					this.x = x
+					this.y = y
+					this.r = Math.floor(Math.random() * 256)
+					this.g = Math.floor(Math.random() * 256)
+					this.b = Math.floor(Math.random() * 256)
+					this.ySpeed = Math.random() * 6 + 0.5
+					this.size = Math.random() * 3 + 0.1
+				}
+			}
+
+			var starField = document.getElementById('starfield-canvas')
+			starField.height = window.innerHeight
+			starField.width = window.innerWidth
+
+			window.addEventListener('resize', () => {
+				starField.height = window.innerHeight
+				starField.width = window.innerWidth
+
+				for(let i = 0 ; i < N ; ++i)
+					stars[i] = new Star(Math.random() * starField.width, Math.random() * starField.height)
+			})
+
+			ctx = starField.getContext('2d')
+			const stars = []
+			const N = 125
+
+			for(let i = 0 ; i < N ; ++i)
+				stars[i] = new Star(Math.random() * starField.width, Math.random() * starField.height)
+
+			setInterval(() => {
+				ctx.clearRect(0, 0, starField.width, starField.height)
+				for(let i = 0 ; i < N ; ++i) {
+					star = stars[i]
+					star.y += star.ySpeed
+
+					if(star.y > starField.height)
+						stars[i] = new Star(Math.random() * starField.width, 0)
+
+					ctx.fillStyle = `rgba(${star.r},${star.g},${star.b},${star.size < 2 ? Math.random() < 0.2 ? 0 : 1 : 1})`
+					ctx.fillRect(star.x, star.y, star.size, star.size)
+				}
+			}, 30)
+		</script>
+	</body>
+</html>

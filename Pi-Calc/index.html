@@ -20,7 +20,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		<link rel="shortcut icon" href="favicon/pi.svg">
-		<link rel="icon" type="image/gif" href="favicon/animated_favicon1.gif">
 		<style>
 			@font-face {
 				src: local('Bellefair Regular'), local('Bellefair-Regular'), url('fonts/Bellefair.woff2') format('woff2') ;
@@ -352,11 +351,11 @@
 			}
 
 			outputElement.value =
-				`:: Give a number above and press the "Calculate!" button.\n\n` +
-				`:: This will use your computer's resources to generate Pi.\n\n` +
-				`:: This app may use a good amount of memory.\n\n` +
-				`:: A higher number can freeze your system.\n\n` +
-				`:: Use chrome/chromium based browsers for best performance.`
+				`Things to Note:\n` +
+				`1. Provide a number above and press the "Calculate!" button.\n` +
+				`2. That many decimal digits of Pi will be calculated on your system.\n` +
+				`3. A higher number can freeze your system.\n` +
+				`4. Use chrome/chromium based browsers for best performance.`
 
 			calc = () => {
 				var value = document.getElementById('input').value
@@ -402,9 +401,9 @@
 			}
 
 			function calculatePi(n) {
-				var one = BigInt(1), two = BigInt(2), three = BigInt(3), seven = BigInt(7), ten = BigInt(10)
+				var one = BigInt(1), two = BigInt(2), three = BigInt(3), four = BigInt(4)
+				var seven = BigInt(7), ten = BigInt(10)
 				var q = t = k = one
-				var four = BigInt(4)
 				var m = x = three
 				var n = BigInt(n) + one
 				var r = BigInt(0)
@@ -445,6 +444,7 @@
 				}
 			}
 
+			const N = 125, stars = []
 			var starField = document.getElementById('starfield-canvas')
 			starField.height = window.innerHeight
 			starField.width = window.innerWidth
@@ -458,16 +458,13 @@
 			})
 
 			ctx = starField.getContext('2d')
-			const stars = []
-			const N = 125
-
 			for(let i = 0 ; i < N ; ++i)
 				stars[i] = new Star(Math.random() * starField.width, Math.random() * starField.height)
 
 			setInterval(() => {
 				ctx.clearRect(0, 0, starField.width, starField.height)
 				for(let i = 0 ; i < N ; ++i) {
-					star = stars[i]
+					var star = stars[i]
 					star.y += star.ySpeed
 
 					if(star.y > starField.height)
